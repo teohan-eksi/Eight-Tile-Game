@@ -11,6 +11,9 @@ document.addEventListener('keydown', function(event){
 	if(key == 78){// code for 'N'.
 		NewGame();
 	}
+	else if(key == 32){
+		MoverandShaker();
+	}
 	else{
 		MoveActiveTile(key);
 	}
@@ -18,7 +21,7 @@ document.addEventListener('keydown', function(event){
 
 
 
-let tile_arr = []; //scope
+let tile_arr = []; //tile DOM elements randomly placed on the board
 function NewGame(){
 	var board = document.getElementById("board");
 	
@@ -47,15 +50,16 @@ function NewGame(){
 
 	let nineth_grid_x = String(x_off + 2*tile_w + "px");
 	let nineth_grid_y = String(y_off + 2*tile_w + "px");
-	//Active tile highlighting
-	if(ac){
+
+	if(ac || empty_elem){
 		ac.remove();
-		ActiveTile(tile_w, nineth_grid_x, nineth_grid_y);
-	}
-	else{
-		ActiveTile(tile_w, nineth_grid_x, nineth_grid_y);
+		empty_elem.remove();
 	}
 
+	//Active tile highlighting
+	ActiveTile(tile_w, nineth_grid_x, nineth_grid_y);
+	//Empty element
+	EmptyElem(tile_w, nineth_grid_x, nineth_grid_y);
 }
 
 function RandomIntArr(a, b){
@@ -89,6 +93,7 @@ k++;
 }
 
 let ac;
+let ac_index = 8;
 function ActiveTile(tile_wh, x, y){
 	ac = document.createElement("DIV");
 	ac.style.width = tile_wh + "px";
@@ -98,18 +103,57 @@ function ActiveTile(tile_wh, x, y){
 	ac.style.left = x;
 	ac.style.top = y;	
 	document.body.appendChild(ac);
-
+	ac_index = 8;// realign the index.
 }
 
-//move ac only on tile elements, so that you can interact with them once you are on them.
+let empty_elem;
+let empty_index = 8; //by default it's on the nineth grid.
+function EmptyElem(tile_wh, x, y){
+	//create an element for the empty grid and place it on the 9th grid to manipulate the empty grid.
+	//emptiness is not the absence of elements but the existence of an empty element.
+	empty_elem = document.createElement("DIV");
+	empty_elem.style.width = tile_wh + "px";
+	empty_elem.style.height = tile_wh + "px";
+	empty_elem.style.position = "absolute";
+	empty_elem.style.left = x;
+	empty_elem.style.top = y;	
+	document.body.appendChild(empty_elem);
+	tile_arr[8] = empty_elem; //add the empty element to the elements array.
+}
+
+/* move ac only on tile elements, so that you can interact with them once you are on them.
+ * there are only 9 possible grids that the ac can be in. 
+ * By default it's in the 9th grid (8th element of the element array).
+ */
+
 function MoveActiveTile(key){
-	if(key== 37){
-		ac.style.left = String((Number(ac.style.left.replace("px", "")) - 40)) + "px";
+	if(key == 37 && (ac_index != 0 && ac_index != 3 && ac_index != 6)){// left arrrow
+		ac_index--;
+		ac.style.left = tile_arr[ac_index].style.left;
 	}
-	else if(key == 38){
+	else if(key == 38 && (ac_index != 0 && ac_index != 1 && ac_index !=2)){//up arrow
+		ac_index -= 3;
+		ac.style.top = tile_arr[ac_index].style.top;
 	}
-	else if(key == 39){
+	else if(key == 39 && (ac_index != 2 && ac_index != 5 && ac_index != 8)){//right arrow
+		ac_index++;
+		ac.style.left = tile_arr[ac_index].style.left;
+
 	}
-	else if(key == 40){
+	else if(key == 40 && (ac_index != 6 && ac_index != 7 && ac_index != 8)){//down arrow
+		ac_index += 3;
+		ac.style.top = tile_arr[ac_index].style.top;
 	}
+}
+
+function MoverandShaker(){
+let dummy_i=0;
+console.log(ac_index, empty_index);	
+	if((ac_index - empty_index) > -3 && (ac_index - empty_index) < 0){
+		console.log("h-lr");
+		
+	}else if((ac_index-empty_index) % 3 == 0  ){
+		console.log("v");
+	}
+
 }
