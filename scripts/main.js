@@ -1,5 +1,5 @@
-/* 
- *clean and comment 
+/*Eight Tile Game
+ *
  */
 
 var ng_btn = document.getElementById("new_game_btn");
@@ -11,30 +11,31 @@ document.addEventListener('keydown', function(event){
 	if(key == 78){// code for 'N'.
 		NewGame();
 	}
-	else if(key == 32){
-		MoverandShaker();
+	else if(key == 32){// code for 'space bar'.
+		MoverandShaker();//moves tiles.
 	}
 	else{
-		MoveActiveTile(key);
+		MoveActiveTile(key);//only works if the 'key' is one of the arrow keys.
 	}
 } );
 
-
-
-let tile_arr = []; //tile DOM elements randomly placed on the board
+let tile_arr = []; //an array for tile DOM elements on the board (1,2,...,8)
 function NewGame(){
 	var board = document.getElementById("board");
 	
-	//for relative positioning
-	var x_off = board.offsetLeft;//recalculate with board borders. 1/50  
-	var y_off =	board.offsetTop;
+	//offset values for positioning the tiles relative to the borders of the board.
+	//frame width ratio: the ratio of one of the board's frames' width to the board's overall width.
+	const frame_w_ratio = 1/50;
+	var x_off = board.offsetLeft + board.width*frame_w_ratio;
+	var y_off =	board.offsetTop + board.width*frame_w_ratio;
 	
-	//get the tile width, here. tile width, should be, = height.
+	//get the tile width. tile width = tile height.
 	let tile_w = document.getElementById("tile1").clientWidth;
 	
 	//get an array of unique random integers
 	let rndm_int_arr = RandomIntArr(1,9);
-	
+
+	//set up the tiles on the board. 
 	let tile_elem; //DOM element
 	let i = 0;
 	for(i; i<8; i++){//there are 8 tiles, constant.
@@ -45,7 +46,7 @@ function NewGame(){
 		//put 3 tiles in a row, drop exactly one tile height and repeat.
 		tile_elem.style.top = String(y_off + ( Math.floor(i/3) * tile_w)) + "px";
 		
-		tile_arr[i] = tile_elem;
+		tile_arr[i] = tile_elem;//to be used when moving the tiles around.
 	}
 
 	let nineth_grid_x = String(x_off + 2*tile_w + "px");
@@ -88,28 +89,30 @@ let k = 0;
 
 k++;
 	}
-//alert(k);between 9 and 15
+//console.log(k); //between 9 and 15
 	return int_arr;
 }
 
+//active tile highlighter element
 let ac;
-let ac_index = 8;
+let ac_index = 8; //by default at the end.
 function ActiveTile(tile_wh, x, y){
 	ac = document.createElement("DIV");
 	ac.style.width = tile_wh + "px";
 	ac.style.height = tile_wh + "px";
-	ac.style.border = "5px dotted red";
+	ac.style.border = "4px dotted red";
 	ac.style.position = "absolute";
-	ac.style.left = x;
+	ac.style.left = x; //nineth grid coordinates
 	ac.style.top = y;	
 	document.body.appendChild(ac);
-	ac_index = 8;// realign the index.
+	//realigns the index to the nineth grid when 'N' is pressed.
+	ac_index = 8;
 }
 
 let empty_elem;
 let empty_index = 8; //by default it's on the nineth grid.
 function EmptyElem(tile_wh, x, y){
-	//create an element for the empty grid and place it on the 9th grid to manipulate the empty grid.
+	//create an element for the empty grid and place it on the 9th grid to manipulate as an empty grid.
 	//emptiness is not the absence of elements but the existence of an empty element.
 	empty_elem = document.createElement("DIV");
 	empty_elem.style.width = tile_wh + "px";
@@ -118,7 +121,7 @@ function EmptyElem(tile_wh, x, y){
 	empty_elem.style.left = x;
 	empty_elem.style.top = y;	
 	document.body.appendChild(empty_elem);
-	empty_index = 8; //realigning
+	empty_index = 8; //realigning to the nineth grid for a new game.
 	tile_arr[empty_index] = empty_elem; //add the empty element to the elements array.
 }
 
@@ -126,7 +129,6 @@ function EmptyElem(tile_wh, x, y){
  * there are only 9 possible grids that the ac can be in. 
  * By default it's in the 9th grid (8th element of the element array).
  */
-
 function MoveActiveTile(key){
 	if(key == 37 && (ac_index != 0 && ac_index != 3 && ac_index != 6)){// left arrrow
 		ac_index--;
@@ -151,10 +153,8 @@ function MoveActiveTile(key){
 function MoverandShaker(){
 let dummy_i;
 let dummy_elem;
-console.log(ac_index, empty_index);	
+	//how to actually know that ac and empty tile on the same row?
 	if((ac_index - empty_index) > -3 && (ac_index - empty_index) < 0){
-		console.log("h-lr");
-
 		dummy_elem = tile_arr[empty_index];
 		dummy_pos = dummy_elem.style.left;
 		
@@ -165,9 +165,46 @@ console.log(ac_index, empty_index);
 		tile_arr[empty_index-1] = dummy_elem;
 
 		empty_index--;
+		dummy_elem = null;
+		dummy_pos = null;
+	}else if((ac_index - empty_index) < 3 && (ac_index - empty_index) > 0){
+		dummy_elem = tile_arr[empty_index];
+		dummy_pos = dummy_elem.style.left;
+		
+		tile_arr[empty_index].style.left = tile_arr[empty_index+1].style.left;
+		tile_arr[empty_index+1].style.left = dummy_pos;
 
-	}else if((ac_index-empty_index) % 3 == 0  ){
-		console.log("v");
+		tile_arr[empty_index] = tile_arr[empty_index+1];
+		tile_arr[empty_index+1] = dummy_elem;
+
+		empty_index++;
+		dummy_elem = null;
+		dummy_pos = null;
+	}else if((ac_index - empty_index) == -3 || (ac_index - empty_index) == -6){
+		dummy_elem = tile_arr[empty_index];
+		dummy_pos = dummy_elem.style.top;
+		
+		tile_arr[empty_index].style.top = tile_arr[empty_index-3].style.top;
+		tile_arr[empty_index-3].style.top = dummy_pos;
+
+		tile_arr[empty_index] = tile_arr[empty_index-3];
+		tile_arr[empty_index-3] = dummy_elem;
+
+		empty_index -= 3;
+		dummy_elem = null;
+		dummy_pos = null;
+	}else if((ac_index - empty_index) == 3 || (ac_index - empty_index) == 6){
+		dummy_elem = tile_arr[empty_index];
+		dummy_pos = dummy_elem.style.top;
+		
+		tile_arr[empty_index].style.top = tile_arr[empty_index+3].style.top;
+		tile_arr[empty_index+3].style.top = dummy_pos;
+
+		tile_arr[empty_index] = tile_arr[empty_index+3];
+		tile_arr[empty_index+3] = dummy_elem;
+
+		empty_index += 3;
+		dummy_elem = null;
+		dummy_pos = null;
 	}
-
 }
