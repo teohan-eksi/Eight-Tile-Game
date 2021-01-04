@@ -118,7 +118,8 @@ function EmptyElem(tile_wh, x, y){
 	empty_elem.style.left = x;
 	empty_elem.style.top = y;	
 	document.body.appendChild(empty_elem);
-	tile_arr[8] = empty_elem; //add the empty element to the elements array.
+	empty_index = 8; //realigning
+	tile_arr[empty_index] = empty_elem; //add the empty element to the elements array.
 }
 
 /* move ac only on tile elements, so that you can interact with them once you are on them.
@@ -146,12 +147,25 @@ function MoveActiveTile(key){
 	}
 }
 
+//called upon pressing 'space bar'
 function MoverandShaker(){
-let dummy_i=0;
+let dummy_i;
+let dummy_elem;
 console.log(ac_index, empty_index);	
 	if((ac_index - empty_index) > -3 && (ac_index - empty_index) < 0){
 		console.log("h-lr");
+
+		dummy_elem = tile_arr[empty_index];
+		dummy_pos = dummy_elem.style.left;
 		
+		tile_arr[empty_index].style.left = tile_arr[empty_index-1].style.left;
+		tile_arr[empty_index-1].style.left = dummy_pos;
+
+		tile_arr[empty_index] = tile_arr[empty_index-1];
+		tile_arr[empty_index-1] = dummy_elem;
+
+		empty_index--;
+
 	}else if((ac_index-empty_index) % 3 == 0  ){
 		console.log("v");
 	}
